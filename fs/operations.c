@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "betterassert.h"
 
@@ -242,10 +244,47 @@ int tfs_unlink(char const *target) {
 }
 
 int tfs_copy_from_external_fs(char const *source_path, char const *dest_path) {
-    (void)source_path;
-    (void)dest_path;
-    // ^ this is a trick to keep the compiler from complaining about unused
-    // variables. TODO: remove
+    int source_fd = open(source_path, O_RDONLY);
 
-    PANIC("TODO: tfs_copy_from_external_fs");
+    if (source_fd < 0) {
+        return -1;
+    }
+
+    int dest_fd = tfs_open(dest_path, TFS_O_CREAT | TFS_O_TRUNC);
+
+    if (dest_fd < 0) {
+        close(source_fd);
+        return -1;
+    }
+
+    size_t size = state_block_size();
+    char *buffer[size];
+
+    memset(buffer, 0, sizeof(buffer));
+    ssize_t bytes_read = read(source_fd, buffer, size-1);
+
+    if (bytes_read < 0) {
+        close(source_fd);
+        tfs_close(dest_fd);
+        return -1;
+    }
+
+    ssize_t bytes_writen = tfs_write(dest_fd, buffer, (size_t) bytes_read);
+
+    if (bytes_writen < 0) {
+        close(source_fd);
+        tfs_close(dest_fd);
+        return -1;
+    }
+
+    if (close(source_fd) < 0) {
+        tfs_close(dest_fd);
+        return -1;
+    }
+
+    if (tfs_close(dest_fd) < 0) {
+        return -1;
+    }
+
+    return 0;
 }
