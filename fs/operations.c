@@ -1,12 +1,12 @@
 #include "operations.h"
 #include "config.h"
 #include "state.h"
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 #include "betterassert.h"
 
@@ -261,7 +261,7 @@ int tfs_copy_from_external_fs(char const *source_path, char const *dest_path) {
     char *buffer[size];
 
     memset(buffer, 0, sizeof(buffer));
-    ssize_t bytes_read = read(source_fd, buffer, size-1);
+    ssize_t bytes_read = read(source_fd, buffer, size - 1);
 
     if (bytes_read < 0) {
         close(source_fd);
@@ -269,7 +269,7 @@ int tfs_copy_from_external_fs(char const *source_path, char const *dest_path) {
         return -1;
     }
 
-    ssize_t bytes_writen = tfs_write(dest_fd, buffer, (size_t) bytes_read);
+    ssize_t bytes_writen = tfs_write(dest_fd, buffer, (size_t)bytes_read);
 
     if (bytes_writen < 0) {
         close(source_fd);
