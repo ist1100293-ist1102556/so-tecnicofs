@@ -151,7 +151,7 @@ int tfs_link(char const *target, char const *link_name) {
     if (inumber == -1) {
         return -1;
     }
-    if (add_dir_entry(root_dir_inode, link_name, inumber) == -1) {
+    if (add_dir_entry(root_dir_inode, link_name+1, inumber) == -1) {
         return -1;
     }
     inode_t *file_inode = inode_get(inumber);
