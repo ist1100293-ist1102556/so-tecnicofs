@@ -27,7 +27,7 @@ typedef struct {
 
     size_t i_size;
     int i_data_block;
-
+    int number_hard_links=1;
     // in a more complete FS, more fields could exist here
 } inode_t;
 
