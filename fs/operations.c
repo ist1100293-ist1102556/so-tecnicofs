@@ -97,7 +97,8 @@ int tfs_open(char const *name, tfs_file_mode_t mode) {
             char path[inode->i_size + 1];
 
             void *data = data_block_get(inode->i_data_block);
-            ALWAYS_ASSERT(data != NULL, "tfs_open: data block deleted mid-write");
+            ALWAYS_ASSERT(data != NULL,
+                          "tfs_open: data block deleted mid-write");
 
             memcpy(path, data, inode->i_size);
             path[inode->i_size] = '\0';
@@ -151,7 +152,6 @@ int tfs_sym_link(char const *target, char const *link_name) {
     ALWAYS_ASSERT(root_dir_inode != NULL,
                   "tfs_sym_link: root dir inode must exist");
 
-
     if (tfs_lookup(target, root_dir_inode) == -1) {
         return -1;
     }
@@ -179,7 +179,7 @@ int tfs_sym_link(char const *target, char const *link_name) {
 
     sym_link_inode->i_size = name_size;
 
-    add_dir_entry(root_dir_inode, link_name+1, inum);
+    add_dir_entry(root_dir_inode, link_name + 1, inum);
 
     return 0;
 }
@@ -189,7 +189,7 @@ int tfs_link(char const *target, char const *link_name) {
     ALWAYS_ASSERT(root_dir_inode != NULL,
                   "tfs_link: root dir inode must exist");
     int inumber = tfs_lookup(target, root_dir_inode);
-    
+
     if (inumber == -1) {
         return -1;
     }
@@ -204,7 +204,7 @@ int tfs_link(char const *target, char const *link_name) {
     if (add_dir_entry(root_dir_inode, link_name + 1, inumber) == -1) {
         return -1;
     }
-    
+
     file_inode->number_hard_links++;
     return 0;
 }
@@ -302,7 +302,7 @@ int tfs_unlink(char const *target) {
     }
     inode_t *file_inode = inode_get(inumber);
     ALWAYS_ASSERT(file_inode != NULL, "tfs_unlink: target inode must exist");
-    if (clear_dir_entry(root_dir_inode, target + 1) == -1){
+    if (clear_dir_entry(root_dir_inode, target + 1) == -1) {
         return -1;
     }
     if ((--file_inode->number_hard_links) == 0) {
