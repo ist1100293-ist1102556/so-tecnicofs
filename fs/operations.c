@@ -151,7 +151,7 @@ int tfs_link(char const *target, char const *link_name) {
     if (inumber == -1) {
         return -1;
     }
-    if (add_dir_entry(root_dir_inode, link_name+1, inumber) == -1) {
+    if (add_dir_entry(root_dir_inode, link_name + 1, inumber) == -1) {
         return -1;
     }
     inode_t *file_inode = inode_get(inumber);
@@ -244,11 +244,22 @@ ssize_t tfs_read(int fhandle, void *buffer, size_t len) {
 }
 
 int tfs_unlink(char const *target) {
-    (void)target;
-    // ^ this is a trick to keep the compiler from complaining about unused
-    // variables. TODO: remove
-
-    PANIC("TODO: tfs_unlink");
+    inode_t *root_dir_inode = inode_get(ROOT_DIR_INUM);
+    ALWAYS_ASSERT(root_dir_inode != NULL,
+                  "tfs_link: root dir inode must exist");
+    int inumber = tfs_lookup(target, root_dir_inode);
+    if (inumber == -1) {
+        return -1;
+    }
+    inode_t *file_inode = inode_get(inumber);
+    ALWAYS_ASSERT(file_inode != NULL, "tfs_link: target inode must exist");
+    if (clear_dir_entry(root_dir_inode, target + 1) == -1){
+        return -1;
+    }
+    if ((--file_inode->number_hard_links) == 0) {
+        inode_delete(inumber);
+    }
+    return 0;
 }
 
 int tfs_copy_from_external_fs(char const *source_path, char const *dest_path) {
