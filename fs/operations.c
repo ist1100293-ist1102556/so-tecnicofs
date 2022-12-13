@@ -315,10 +315,12 @@ int tfs_unlink(char const *target) {
         return -1;
     }
     if ((--file_inode->number_hard_links) == 0) {
-        size_t block_size = state_block_size();
-        void *block = data_block_get(file_inode->i_data_block);
 
-        memset(block, 0, block_size);
+        if (file_inode->i_size > 0) {
+            size_t block_size = state_block_size();
+            void *block = data_block_get(file_inode->i_data_block);
+            memset(block, 0, block_size);
+        }
 
         inode_delete(inumber);
     }
