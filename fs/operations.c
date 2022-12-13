@@ -156,6 +156,10 @@ int tfs_sym_link(char const *target, char const *link_name) {
         return -1;
     }
 
+    if (tfs_lookup(link_name, root_dir_inode) != -1) {
+        return -1;
+    }
+
     int inum = inode_create(T_SYMLINK);
     if (inum == -1) {
         return -1;
@@ -188,9 +192,14 @@ int tfs_link(char const *target, char const *link_name) {
     inode_t *root_dir_inode = inode_get(ROOT_DIR_INUM);
     ALWAYS_ASSERT(root_dir_inode != NULL,
                   "tfs_link: root dir inode must exist");
+
     int inumber = tfs_lookup(target, root_dir_inode);
 
     if (inumber == -1) {
+        return -1;
+    }
+
+    if (tfs_lookup(link_name, root_dir_inode) != -1) {
         return -1;
     }
 
@@ -306,6 +315,11 @@ int tfs_unlink(char const *target) {
         return -1;
     }
     if ((--file_inode->number_hard_links) == 0) {
+        size_t block_size = state_block_size();
+        void *block = data_block_get(file_inode->i_data_block);
+
+        memset(block, 0, block_size);
+
         inode_delete(inumber);
     }
     return 0;
