@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
+
 /*
  * Persistent FS state
  * (in reality, it should be maintained in secondary memory;
@@ -16,17 +17,22 @@ static tfs_params fs_params;
 
 // Inode table
 static inode_t *inode_table;
+pthread_mutex_t inode_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 static allocation_state_t *freeinode_ts;
+pthread_mutex_t freeinode_ts_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Data blocks
 static char *fs_data; // # blocks * block size
+pthread_rwlock_t *fs_data_rwl;
 static allocation_state_t *free_blocks;
+pthread_mutex_t free_blocks_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /*
  * Volatile FS state
  */
 static open_file_entry_t *open_file_table;
 static allocation_state_t *free_open_file_entries;
+pthread_mutex_t free_open_file_entries_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Convenience macros
 #define INODE_TABLE_SIZE (fs_params.max_inode_count)
@@ -102,12 +108,13 @@ int state_init(tfs_params params) {
     inode_table = malloc(INODE_TABLE_SIZE * sizeof(inode_t));
     freeinode_ts = malloc(INODE_TABLE_SIZE * sizeof(allocation_state_t));
     fs_data = malloc(DATA_BLOCKS * BLOCK_SIZE);
+    fs_data_rwl = malloc(DATA_BLOCKS * sizeof(pthread_mutex_t));
     free_blocks = malloc(DATA_BLOCKS * sizeof(allocation_state_t));
     open_file_table = malloc(MAX_OPEN_FILES * sizeof(open_file_entry_t));
     free_open_file_entries =
         malloc(MAX_OPEN_FILES * sizeof(allocation_state_t));
 
-    if (!inode_table || !freeinode_ts || !fs_data || !free_blocks ||
+    if (!inode_table || !freeinode_ts || !fs_data || !fs_data_rwl || !free_blocks ||
         !open_file_table || !free_open_file_entries) {
         return -1; // allocation failed
     }
@@ -117,10 +124,12 @@ int state_init(tfs_params params) {
     }
 
     for (size_t i = 0; i < DATA_BLOCKS; i++) {
+        pthread_rwlock_init(&fs_data_rwl[i],NULL); //????????????????????????????????????
         free_blocks[i] = FREE;
     }
 
     for (size_t i = 0; i < MAX_OPEN_FILES; i++) {
+        pthread_mutex_init(&open_file_table[i].open_file_entry_mutex,NULL); //?????????????????????
         free_open_file_entries[i] = FREE;
     }
 
@@ -205,6 +214,7 @@ int inode_create(inode_type i_type) {
     insert_delay(); // simulate storage access delay (to inode)
 
     inode->i_node_type = i_type;
+    pthread_mutex_init(&inode->inodeLock,NULL);
     switch (i_type) {
     case T_DIRECTORY: {
         // Initializes directory (filling its block with empty entries, labeled
@@ -268,7 +278,7 @@ void inode_delete(int inumber) {
     if (inode_table[inumber].i_size > 0) {
         data_block_free(inode_table[inumber].i_data_block);
     }
-
+    pthread_mutex_destroy(&inode_table[inumber].inodeLock);
     freeinode_ts[inumber] = FREE;
 }
 
