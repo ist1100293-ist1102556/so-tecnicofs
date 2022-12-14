@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-
+#include <pthread.h>
 /**
  * Directory entry
  */
@@ -28,6 +28,7 @@ typedef struct {
     size_t i_size;
     int i_data_block;
     int number_hard_links;
+    pthread_mutex_t inodeLock;
     // in a more complete FS, more fields could exist here
 } inode_t;
 
@@ -39,6 +40,7 @@ typedef enum { FREE = 0, TAKEN = 1 } allocation_state_t;
 typedef struct {
     int of_inumber;
     size_t of_offset;
+    pthread_mutex_t open_file_entry_mutex;
 } open_file_entry_t;
 
 int state_init(tfs_params);
