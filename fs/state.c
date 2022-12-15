@@ -7,7 +7,6 @@
 #include <string.h>
 #include <unistd.h>
 
-
 /*
  * Persistent FS state
  * (in reality, it should be maintained in secondary memory;
@@ -114,8 +113,8 @@ int state_init(tfs_params params) {
     free_open_file_entries =
         malloc(MAX_OPEN_FILES * sizeof(allocation_state_t));
 
-    if (!inode_table || !freeinode_ts || !fs_data || !fs_data_rwl || !free_blocks ||
-        !open_file_table || !free_open_file_entries) {
+    if (!inode_table || !freeinode_ts || !fs_data || !fs_data_rwl ||
+        !free_blocks || !open_file_table || !free_open_file_entries) {
         return -1; // allocation failed
     }
 
@@ -124,12 +123,14 @@ int state_init(tfs_params params) {
     }
 
     for (size_t i = 0; i < DATA_BLOCKS; i++) {
-        pthread_rwlock_init(&fs_data_rwl[i],NULL); //????????????????????????????????????
+        pthread_rwlock_init(&fs_data_rwl[i],
+                            NULL); //????????????????????????????????????
         free_blocks[i] = FREE;
     }
 
     for (size_t i = 0; i < MAX_OPEN_FILES; i++) {
-        pthread_mutex_init(&open_file_table[i].open_file_entry_mutex,NULL); //?????????????????????
+        pthread_mutex_init(&open_file_table[i].open_file_entry_mutex,
+                           NULL); //?????????????????????
         free_open_file_entries[i] = FREE;
     }
 
@@ -214,7 +215,7 @@ int inode_create(inode_type i_type) {
     insert_delay(); // simulate storage access delay (to inode)
 
     inode->i_node_type = i_type;
-    pthread_mutex_init(&inode->inodeLock,NULL);
+    pthread_mutex_init(&inode->inodeLock, NULL);
     switch (i_type) {
     case T_DIRECTORY: {
         // Initializes directory (filling its block with empty entries, labeled
