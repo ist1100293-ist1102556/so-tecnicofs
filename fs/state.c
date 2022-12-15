@@ -152,7 +152,6 @@ int state_destroy(void) {
     free(open_file_entry_mutex);
     free(free_open_file_entries);
 
-
     inode_table = NULL;
     inode_rwlocks = NULL;
     freeinode_ts = NULL;
@@ -504,7 +503,7 @@ void data_block_free(int block_number) {
                   "data_block_free: invalid block number");
 
     insert_delay(); // simulate storage access delay to free_blocks
-    
+
     pthread_mutex_lock(&free_blocks_mutex);
     free_blocks[block_number] = FREE;
     pthread_mutex_unlock(&free_blocks_mutex);
