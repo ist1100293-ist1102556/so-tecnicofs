@@ -1,3 +1,5 @@
 # so-projeto-1
 
-Ordem dos locks: Tabela de Ficheiros Abertos (Free) -> Entrada da TFA (Indice Ascendente) ->  Tabela de Inode (Free) -> (Tabela de INodes) -> INodes (Indice Ascendente) -> Block (Free) -> Cada Bloco (Ordem Ascendente)
+Ordem dos locks: {Mutex} Tabela de Ficheiros Abertos (Free) -> {Mutex} Entrada da TFA (Indice Ascendente) -> {Mutex} Tabela de Inode (Free) ->  {RW Lock} INodes (Indice Ascendente) -> {Mutex} Block (Free)
+
+TODO: Tirar os locks das structs dos INodes e das Entradas da Tabela.
