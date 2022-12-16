@@ -9,6 +9,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+
+/* Global variables in state.c that must be used in operations.c */
+extern pthread_rwlock_t *inode_rwlocks;
+extern pthread_mutex_t freeinode_ts_mutex;
+extern pthread_mutex_t free_blocks_mutex;
+extern pthread_mutex_t *open_file_entry_mutex;
+extern pthread_mutex_t free_open_file_entries_mutex;
+
 /**
  * Directory entry
  */
