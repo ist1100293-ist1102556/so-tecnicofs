@@ -594,3 +594,23 @@ open_file_entry_t *get_open_file_entry(int fhandle) {
     }
     return &open_file_table[fhandle];
 }
+
+/* Finds the first entry in the open file table that has a specific inumber.
+   Returns -1 if there isn't any entry with that inumber.
+*/
+int open_file_table_lookup(int inum) {
+    pthread_mutex_lock(&free_open_file_entries_mutex);
+
+    for (int i = 0; i < MAX_OPEN_FILES; i++) {
+        if (free_open_file_entries[i] == TAKEN &&
+            open_file_table[i].of_inumber == inum) {
+
+            pthread_mutex_unlock(&free_open_file_entries_mutex);
+            return i;
+        }
+    }
+
+    pthread_mutex_unlock(&free_open_file_entries_mutex);
+
+    return -1;
+}
