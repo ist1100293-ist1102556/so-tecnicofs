@@ -19,11 +19,15 @@ int main() {
 
     pthread_t th1, th2;
 
+    assert(tfs_init(NULL) != -1);
+
     assert(pthread_create(&th1,NULL,test_open,NULL)==0);
     assert(pthread_create(&th2,NULL,test_open,NULL)==0);
 
     pthread_join(th1,NULL);
     pthread_join(th2,NULL);
+
+    printf("Successful test.\n");
 
     return 0;
 }
