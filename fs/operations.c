@@ -275,7 +275,7 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
             if (bnum == -1) {
                 pthread_rwlock_unlock(&inode_rwlocks[inum]);
                 pthread_mutex_unlock(&open_file_entry_mutex[fhandle]);
-                
+
                 return -1; // no space
             }
 
