@@ -368,8 +368,6 @@ int tfs_unlink(char const *target) {
             memset(block, 0, block_size);
         }
 
-        pthread_rwlock_unlock(&inode_rwlocks[inumber]);
-
         inode_delete(inumber);
     }
 
