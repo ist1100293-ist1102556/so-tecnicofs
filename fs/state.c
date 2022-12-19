@@ -334,8 +334,7 @@ int clear_dir_entry(inode_t *inode, char const *sub_name) {
         return -1; // not a directory
     }
 
-    pthread_rwlock_wrlock(
-        &inode_rwlocks[ROOT_DIR_INUM]); // ??? Podemos fazer isto?
+    pthread_rwlock_wrlock(&inode_rwlocks[ROOT_DIR_INUM]);
 
     // Locates the block containing the entries of the directory
     dir_entry_t *dir_entry = (dir_entry_t *)data_block_get(inode->i_data_block);
@@ -347,15 +346,13 @@ int clear_dir_entry(inode_t *inode, char const *sub_name) {
             dir_entry[i].d_inumber = -1;
             memset(dir_entry[i].d_name, 0, MAX_FILE_NAME);
 
-            pthread_rwlock_unlock(
-                &inode_rwlocks[ROOT_DIR_INUM]); // ??? Podemos fazer isto?
+            pthread_rwlock_unlock(&inode_rwlocks[ROOT_DIR_INUM]);
 
             return 0;
         }
     }
 
-    pthread_rwlock_unlock(
-        &inode_rwlocks[ROOT_DIR_INUM]); // ??? Podemos fazer isto?
+    pthread_rwlock_unlock(&inode_rwlocks[ROOT_DIR_INUM]);
 
     return -1; // sub_name not found
 }
@@ -385,8 +382,7 @@ int add_dir_entry(inode_t *inode, char const *sub_name, int sub_inumber) {
         return -1; // not a directory
     }
 
-    pthread_rwlock_wrlock(
-        &inode_rwlocks[ROOT_DIR_INUM]); // ??? Podemos fazer isto?
+    pthread_rwlock_wrlock(&inode_rwlocks[ROOT_DIR_INUM]);
 
     // Locates the block containing the entries of the directory
     dir_entry_t *dir_entry = (dir_entry_t *)data_block_get(inode->i_data_block);
@@ -400,15 +396,13 @@ int add_dir_entry(inode_t *inode, char const *sub_name, int sub_inumber) {
             strncpy(dir_entry[i].d_name, sub_name, MAX_FILE_NAME - 1);
             dir_entry[i].d_name[MAX_FILE_NAME - 1] = '\0';
 
-            pthread_rwlock_unlock(
-                &inode_rwlocks[ROOT_DIR_INUM]); // ??? Podemos fazer isto?
+            pthread_rwlock_unlock(&inode_rwlocks[ROOT_DIR_INUM]);
 
             return 0;
         }
     }
 
-    pthread_rwlock_unlock(
-        &inode_rwlocks[ROOT_DIR_INUM]); // ??? Podemos fazer isto?
+    pthread_rwlock_unlock(&inode_rwlocks[ROOT_DIR_INUM]);
 
     return -1; // no space for entry
 }
@@ -436,8 +430,7 @@ int find_in_dir(inode_t const *inode, char const *sub_name) {
         return -1; // not a directory
     }
 
-    pthread_rwlock_rdlock(
-        &inode_rwlocks[ROOT_DIR_INUM]); // ??? Podemos fazer isto?
+    pthread_rwlock_rdlock(&inode_rwlocks[ROOT_DIR_INUM]);
 
     // Locates the block containing the entries of the directory
     dir_entry_t *dir_entry = (dir_entry_t *)data_block_get(inode->i_data_block);
@@ -452,14 +445,12 @@ int find_in_dir(inode_t const *inode, char const *sub_name) {
 
             int sub_inumber = dir_entry[i].d_inumber;
 
-            pthread_rwlock_unlock(
-                &inode_rwlocks[ROOT_DIR_INUM]); // ??? Podemos fazer isto?
+            pthread_rwlock_unlock(&inode_rwlocks[ROOT_DIR_INUM]);
 
             return sub_inumber;
         }
 
-    pthread_rwlock_unlock(
-        &inode_rwlocks[ROOT_DIR_INUM]); // ??? Podemos fazer isto?
+    pthread_rwlock_unlock(&inode_rwlocks[ROOT_DIR_INUM]);
 
     return -1; // entry not found
 }

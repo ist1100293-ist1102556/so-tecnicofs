@@ -12,7 +12,9 @@ char sub_string[] = "AB";
 
 int fd;
 
-/* This function uses 3 threads to write the substring "AB" to the same file, using the same file handle. The expected result is that the file will contain 3 instances of the substring.*/
+/* This function uses 3 threads to write the substring "AB" to the same file,
+ * using the same file handle. The expected result is that the file will contain
+ * 3 instances of the substring.*/
 
 /* This function writes 2 bytes to the file */
 void *test_write(void *arg) {
@@ -49,9 +51,11 @@ int main() {
     fd = tfs_open(path_file, TFS_O_CREAT);
     assert(fd != -1);
 
-    assert(tfs_read(fd, buffer, 6) == 6); 
+    assert(tfs_read(fd, buffer, 6) == 6);
 
-    assert(!strcmp(buffer, full_string)); // Compares what's on the file with the full string.
+    assert(!strcmp(
+        buffer,
+        full_string)); // Compares what's on the file with the full string.
 
     printf("Successful test.\n");
 
