@@ -44,15 +44,13 @@ int main() {
     assert(fd != -1);
     assert(tfs_close(fd) != -1);
 
-    int *result1 = (int *)malloc(sizeof(int));
-    int *result2 = (int *)malloc(sizeof(int));
-    int *result3 = (int *)malloc(sizeof(int));
+    int *result1, *result2, *result3;
 
     assert(pthread_create(&th1, NULL, test_open, NULL) ==
            0); // three threads to create/open the same file
     assert(pthread_create(&th2, NULL, test_open, NULL) == 0);
     assert(pthread_create(&th3, NULL, test_open, NULL) == 0);
-
+    // ret = 0x003dae
     pthread_join(th1, (void **)&result1);
     pthread_join(th2, (void **)&result2);
     pthread_join(th3, (void **)&result3);
@@ -60,6 +58,10 @@ int main() {
     assert((*result1 + *result2 + *result3) ==
            2); // Checks if the sum of the results from the 3 threads equals 2
                // (2 threads return 1, 1 thread returns 0)
+
+    free(result1);
+    free(result2);
+    free(result3);
 
     printf("Successful test.\n");
 

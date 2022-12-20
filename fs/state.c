@@ -144,13 +144,21 @@ int state_init(tfs_params params) {
  */
 int state_destroy(void) {
     free(inode_table);
-    free(inode_rwlocks);
     free(freeinode_ts);
     free(fs_data);
     free(free_blocks);
     free(open_file_table);
-    free(open_file_entry_mutex);
     free(free_open_file_entries);
+
+    for (int i = 0; i < INODE_TABLE_SIZE; i++) {
+        pthread_rwlock_destroy(&inode_rwlocks[i]);
+    }
+    free(inode_rwlocks);
+
+    for (int i = 0; i < MAX_OPEN_FILES; i++) {
+        pthread_mutex_destroy(&open_file_entry_mutex[i]);
+    }
+    free(open_file_entry_mutex);
 
     inode_table = NULL;
     inode_rwlocks = NULL;

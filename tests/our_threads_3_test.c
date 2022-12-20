@@ -68,6 +68,10 @@ int main() {
     // present in the results, meaning that the threads didn't read the same
     // part of the file.
 
+    free(res1);
+    free(res2);
+    free(res3);
+
     printf("Successful test.\n");
 
     return 0;
